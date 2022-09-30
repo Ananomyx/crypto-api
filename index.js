@@ -1,4 +1,4 @@
-const PORT = 8000
+const PORT = process.env.PORT || 8000 
 const express = require('express')
 const axios = require('axios')
 const cheerio = require('cheerio')
@@ -12,12 +12,12 @@ const cryptoNewsBlogs = [
         base: 'https://cointelegraph.com'
     },
     {
-        name: 'crypto.news',
+        name: 'cryptonews',
         address: 'https://crypto.news/',
         base: ''
     },
     {
-        name: 'cryptonews.com',
+        name: 'cryptonewscom',
         address: 'https://cryptonews.com',
         base: ''
     },
@@ -25,6 +25,22 @@ const cryptoNewsBlogs = [
         name: 'coindesk',
         address: 'https://coindesk.com/',
         base: ''
+    },
+    {
+        name: 'cryptoworldcnbc',
+        address: 'https://www.cnbc.com/cryptoworld/',
+        base: ''
+    },
+    {
+        name: 'cryptopotato',
+        address: 'https://cryptopotato.com/crypto-news/',
+        base: ''
+
+    },
+    {
+        name: 'cryptonewsnet',
+        address: 'https://cryptonews.net/',
+        base: 'https://cryptonews.net'
     }
 ]
 
@@ -63,11 +79,31 @@ app.get('/news', (req, res) => {
 })
 
 
-app.get('/news/:cryptoNewsBlogId', async (req, res) => {
+app.get('/news/:cryptoNewsBlogId', (req, res) => {
     const cryptoNewsBlogId = req.params.cryptoNewsBlogId
+
     
-    const cryptoNewsBlog = cryptoNewsBlogs.filter(cryptoNewsBlog => cryptoNewsBlog.name == cryptoNewsBlogId)
-    axios.get()
+    const cryptoNewsBlogAddress = cryptoNewsBlogs.filter(cryptoNewsBlog => cryptoNewsBlog.name == cryptoNewsBlogId)[0].address
+    const cryptoNewsBase = cryptoNewsBlogs.filter(cryptoNewsBlog => cryptoNewsBlog.name == cryptoNewsBlogId)[0].base
+
+    axios.get(cryptoNewsBlogAddress)
+        .then(response => {
+            const html = response.data
+            const $ = cheerio.load(html)
+            const specificArticles = []
+
+            $('a:contains("crypto")', html).each(function () {
+                const title = $(this).text()
+                const url = $(this).attr('href')
+                specificArticles.push({
+                    title,
+                    url: cryptoNewsBase + url,
+                    source: cryptoNewsBlogId
+                })
+            })
+            res.json(specificArticles)
+        }).catch(err => console.log(err))
+
 })
 
 
