@@ -64,7 +64,10 @@ app.get('/news', (req, res) => {
 
 
 app.get('/news/:cryptoNewsBlogId', async (req, res) => {
-    console.log(req)
+    const cryptoNewsBlogId = req.params.cryptoNewsBlogId
+    
+    const cryptoNewsBlog = cryptoNewsBlogs.filter(cryptoNewsBlog => cryptoNewsBlog.name == cryptoNewsBlogId)
+    axios.get()
 })
 
 
